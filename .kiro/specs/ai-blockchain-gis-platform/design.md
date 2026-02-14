@@ -4,6 +4,21 @@
 
 This design document specifies the architecture and implementation approach for an AI-powered blockchain GIS platform that combines spatial analytics, machine learning, blockchain verification, and interactive visualization to support economic development planning in rural India.
 
+### Data Sources
+
+The platform integrates data from the following sources:
+
+1. **GI Products Data**: [India Brand Equity Foundation - GI of India](https://www.ibef.org/giofindia)
+   - Geographical Indication products across India
+   - Regional product information and characteristics
+   - Product categories and locations
+
+2. **MLA Development Data**: [PRS India - MLA Track](https://prsindia.org/mlatrack)
+   - Member of Legislative Assembly development initiatives
+   - Constituency-level development indicators
+   - Infrastructure, education, healthcare, and employment metrics
+   - Historical development spending and outcomes
+
 The platform integrates multiple technologies:
 - **Rust** for high-performance backend APIs with memory safety
 - **Julia** for AI/ML spatial analytics with numerical computing efficiency
@@ -725,7 +740,173 @@ impl IPFSClient {
 }
 ```
 
-### 6. React Dashboard
+### 6. Data Integration Module
+
+**Purpose:** Fetch and integrate data from external sources (IBEF GI data, PRS India MLA data).
+
+**Data Fetchers:**
+
+```rust
+// Data integration module
+pub mod data_integration {
+    use scraper::{Html, Selector};
+    use reqwest::Client;
+    
+    pub struct GIDataFetcher {
+        client: Client,
+        base_url: String,
+    }
+    
+    impl GIDataFetcher {
+        pub fn new() -> Self {
+            Self {
+                client: Client::new(),
+                base_url: "https://www.ibef.org/giofindia".to_string(),
+            }
+        }
+        
+        pub async fn fetch_gi_products(&self) -> Result<Vec<GIProduct>, Error> {
+            // Fetch GI product data from IBEF
+            // Parse HTML/JSON response
+            // Extract product names, locations, categories
+            // Geocode locations to coordinates
+            // Return structured GI products
+        }
+        
+        pub async fn sync_gi_data(&self) -> Result<usize, Error> {
+            // Periodic sync of GI product data
+            // Compare with existing data
+            // Update changed products
+            // Add new products
+            // Return count of updates
+        }
+    }
+    
+    pub struct MLADataFetcher {
+        client: Client,
+        base_url: String,
+    }
+    
+    impl MLADataFetcher {
+        pub fn new() -> Self {
+            Self {
+                client: Client::new(),
+                base_url: "https://prsindia.org/mlatrack".to_string(),
+            }
+        }
+        
+        pub async fn fetch_mla_data(&self, state: &str) -> Result<Vec<MLARecord>, Error> {
+            // Fetch MLA development data from PRS India
+            // Parse constituency information
+            // Extract development indicators
+            // Return structured MLA records
+        }
+        
+        pub async fn fetch_development_indicators(
+            &self,
+            constituency_id: &str
+        ) -> Result<DevelopmentIndicators, Error> {
+            // Fetch detailed development indicators for constituency
+            // Infrastructure metrics
+            // Education metrics
+            // Healthcare metrics
+            // Employment metrics
+            // Return structured indicators
+        }
+        
+        pub async fn sync_mla_data(&self) -> Result<usize, Error> {
+            // Periodic sync of MLA development data
+            // Update constituency boundaries
+            // Update development indicators
+            // Return count of updates
+        }
+    }
+    
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct MLARecord {
+        pub constituency_id: String,
+        pub constituency_name: String,
+        pub state: String,
+        pub mla_name: String,
+        pub party: String,
+        pub boundary: Option<Polygon>,
+    }
+    
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct DevelopmentIndicators {
+        pub infrastructure: InfrastructureMetrics,
+        pub education: EducationMetrics,
+        pub healthcare: HealthcareMetrics,
+        pub employment: EmploymentMetrics,
+        pub economic_growth: EconomicMetrics,
+    }
+    
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct InfrastructureMetrics {
+        pub roads_built_km: f64,
+        pub bridges_constructed: i32,
+        pub electricity_coverage_pct: f64,
+        pub water_supply_coverage_pct: f64,
+    }
+    
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct EducationMetrics {
+        pub schools_built: i32,
+        pub schools_upgraded: i32,
+        pub literacy_rate_pct: f64,
+        pub student_teacher_ratio: f64,
+    }
+    
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct HealthcareMetrics {
+        pub health_centers_built: i32,
+        pub doctors_per_1000: f64,
+        pub hospital_beds_per_1000: f64,
+        pub immunization_coverage_pct: f64,
+    }
+    
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct EmploymentMetrics {
+        pub jobs_created: i32,
+        pub unemployment_rate_pct: f64,
+        pub skill_training_programs: i32,
+    }
+    
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct EconomicMetrics {
+        pub gdp_growth_pct: f64,
+        pub per_capita_income: f64,
+        pub poverty_rate_pct: f64,
+    }
+}
+
+// Scheduled data sync
+pub async fn run_data_sync_scheduler() {
+    let gi_fetcher = GIDataFetcher::new();
+    let mla_fetcher = MLADataFetcher::new();
+    
+    // Run daily sync at 2 AM
+    let mut interval = tokio::time::interval(Duration::from_secs(86400));
+    
+    loop {
+        interval.tick().await;
+        
+        info!("Starting scheduled data sync");
+        
+        match gi_fetcher.sync_gi_data().await {
+            Ok(count) => info!("Synced {} GI products", count),
+            Err(e) => error!("GI data sync failed: {}", e),
+        }
+        
+        match mla_fetcher.sync_mla_data().await {
+            Ok(count) => info!("Synced {} MLA records", count),
+            Err(e) => error!("MLA data sync failed: {}", e),
+        }
+    }
+}
+```
+
+### 7. React Dashboard
 
 **Component Structure:**
 
