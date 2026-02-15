@@ -3,6 +3,8 @@ use dotenv::dotenv;
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
+mod auth;
+mod auth_middleware;
 mod config;
 pub mod db;
 mod error;

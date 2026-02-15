@@ -3,7 +3,9 @@ use sqlx::postgres::{PgPool, PgPoolOptions};
 use std::time::Duration;
 use tracing::{info, warn};
 
+pub mod audit;
 pub mod gi_product;
+pub mod user;
 
 /// Database connection pool manager
 #[derive(Clone)]

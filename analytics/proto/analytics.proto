@@ -1,0 +1,343 @@
+syntax = "proto3";
+
+package analytics;
+
+// Main Analytics Service
+service AnalyticsService {
+    rpc PredictROI(ROIRequest) returns (ROIPrediction);
+    rpc DetectAnomalies(AnomalyRequest) returns (AnomalyResponse);
+    rpc DetectClusters(ClusterRequest) returns (ClusterResponse);
+    rpc ComputeMLAScore(MLARequest) returns (MLAScore);
+    rpc GenerateForecast(ForecastRequest) returns (ForecastResponse);
+    rpc AssessRisk(RiskRequest) returns (RiskAssessment);
+    rpc ExplainPrediction(ExplanationRequest) returns (SHAPExplanation);
+    rpc GetModelMetrics(ModelMetricsRequest) returns (ModelMetrics);
+    rpc TrainModel(TrainingRequest) returns (TrainingResponse);
+}
+
+// ============================================================================
+// ROI Prediction Messages
+// ============================================================================
+
+message ROIRequest {
+    double latitude = 1;
+    double longitude = 2;
+    string sector = 3;
+    double investment_amount = 4;
+    int32 timeframe_years = 5;
+    map<string, double> additional_features = 6;
+}
+
+message ROIPrediction {
+    double predicted_roi = 1;
+    double confidence_lower = 2;
+    double confidence_upper = 3;
+    double variance = 4;
+    string model_version = 5;
+    repeated FeatureImportance feature_importance = 6;
+}
+
+message FeatureImportance {
+    string feature_name = 1;
+    double shap_value = 2;
+}
+
+// ============================================================================
+// Anomaly Detection Messages
+// ============================================================================
+
+message AnomalyRequest {
+    repeated Transaction transactions = 1;
+    double threshold = 2;  // Optional threshold override
+}
+
+message Transaction {
+    string transaction_id = 1;
+    double latitude = 2;
+    double longitude = 3;
+    double amount = 4;
+    string category = 5;
+    int64 timestamp = 6;  // Unix timestamp
+}
+
+message AnomalyResponse {
+    repeated Anomaly anomalies = 1;
+    string model_version = 2;
+}
+
+message Anomaly {
+    string transaction_id = 1;
+    double anomaly_score = 2;
+    string severity = 3;  // 'low', 'medium', 'high', 'critical'
+    double isolation_forest_score = 4;
+    double autoencoder_score = 5;
+    repeated FeatureImportance shap_values = 6;
+    double expected_value = 7;
+    DeviationMetrics deviation_metrics = 8;
+}
+
+message DeviationMetrics {
+    double z_score = 1;
+    double percentile_rank = 2;
+}
+
+// ============================================================================
+// Clustering Messages
+// ============================================================================
+
+message ClusterRequest {
+    repeated DataPoint data_points = 1;
+    string algorithm = 2;  // 'dbscan' or 'kmeans'
+    map<string, double> parameters = 3;  // Optional parameter overrides
+}
+
+message DataPoint {
+    string id = 1;
+    double latitude = 2;
+    double longitude = 3;
+    map<string, double> attributes = 4;
+}
+
+message ClusterResponse {
+    repeated Cluster clusters = 1;
+    string algorithm_used = 2;
+    map<string, double> parameters_used = 3;
+    QualityMetrics quality_metrics = 4;
+    string model_version = 5;
+}
+
+message Cluster {
+    int32 cluster_id = 1;
+    repeated string member_ids = 2;
+    Polygon boundary = 3;
+    Point centroid = 4;
+    int32 member_count = 5;
+    double density = 6;
+    double economic_value = 7;
+    repeated FeatureImportance shap_values = 8;
+}
+
+message Point {
+    double latitude = 1;
+    double longitude = 2;
+}
+
+message Polygon {
+    repeated Point points = 1;
+}
+
+message QualityMetrics {
+    double silhouette_score = 1;
+    double davies_bouldin_index = 2;
+    double calinski_harabasz_score = 3;
+}
+
+// ============================================================================
+// MLA Scoring Messages
+// ============================================================================
+
+message MLARequest {
+    string constituency_id = 1;
+    DevelopmentIndicators indicators = 2;
+}
+
+message DevelopmentIndicators {
+    InfrastructureMetrics infrastructure = 1;
+    EducationMetrics education = 2;
+    HealthcareMetrics healthcare = 3;
+    EmploymentMetrics employment = 4;
+    EconomicMetrics economic_growth = 5;
+}
+
+message InfrastructureMetrics {
+    double roads_built_km = 1;
+    int32 bridges_constructed = 2;
+    double electricity_coverage_pct = 3;
+    double water_supply_coverage_pct = 4;
+}
+
+message EducationMetrics {
+    int32 schools_built = 1;
+    int32 schools_upgraded = 2;
+    double literacy_rate_pct = 3;
+    double student_teacher_ratio = 4;
+}
+
+message HealthcareMetrics {
+    int32 health_centers_built = 1;
+    double doctors_per_1000 = 2;
+    double hospital_beds_per_1000 = 3;
+    double immunization_coverage_pct = 4;
+}
+
+message EmploymentMetrics {
+    int32 jobs_created = 1;
+    double unemployment_rate_pct = 2;
+    int32 skill_training_programs = 3;
+}
+
+message EconomicMetrics {
+    double gdp_growth_pct = 1;
+    double per_capita_income = 2;
+    double poverty_rate_pct = 3;
+}
+
+message MLAScore {
+    double overall_score = 1;
+    double infrastructure_score = 2;
+    double education_score = 3;
+    double healthcare_score = 4;
+    double employment_score = 5;
+    double economic_growth_score = 6;
+    map<string, double> weights = 7;
+    ConfidenceInterval confidence_interval = 8;
+    repeated FeatureImportance shap_values = 9;
+    string model_version = 10;
+}
+
+message ConfidenceInterval {
+    double lower = 1;
+    double upper = 2;
+}
+
+// ============================================================================
+// Forecasting Messages
+// ============================================================================
+
+message ForecastRequest {
+    string region = 1;
+    string indicator = 2;
+    repeated TimeSeriesPoint historical_data = 3;
+    repeated int32 horizon_years = 4;  // e.g., [1, 3, 5]
+}
+
+message TimeSeriesPoint {
+    int64 timestamp = 1;  // Unix timestamp
+    double value = 2;
+}
+
+message ForecastResponse {
+    repeated ForecastHorizon forecasts = 1;
+    string model_type = 2;
+    double mape = 3;
+    repeated FeatureImportance shap_values = 4;
+    string model_version = 5;
+}
+
+message ForecastHorizon {
+    int32 horizon_years = 1;
+    repeated ForecastPoint forecast_points = 2;
+}
+
+message ForecastPoint {
+    int64 timestamp = 1;
+    double value = 2;
+    double lower_bound = 3;
+    double upper_bound = 4;
+}
+
+// ============================================================================
+// Risk Assessment Messages
+// ============================================================================
+
+message RiskRequest {
+    string project_id = 1;
+    double latitude = 2;
+    double longitude = 3;
+    string sector = 4;
+    double investment_amount = 5;
+    map<string, double> project_attributes = 6;
+}
+
+message RiskAssessment {
+    string risk_level = 1;  // 'low', 'medium', 'high', 'critical'
+    map<string, double> risk_probabilities = 2;
+    double overall_score = 3;
+    double financial_risk = 4;
+    double operational_risk = 5;
+    double social_risk = 6;
+    double environmental_risk = 7;
+    repeated FeatureImportance shap_values = 8;
+    repeated string mitigation_recommendations = 9;
+    string model_version = 10;
+}
+
+// ============================================================================
+// Explainability Messages
+// ============================================================================
+
+message ExplanationRequest {
+    string prediction_id = 1;
+    string model_type = 2;  // 'roi', 'anomaly', 'cluster', 'mla', 'forecast', 'risk'
+}
+
+message SHAPExplanation {
+    repeated FeatureImportance feature_importance = 1;
+    string natural_language_summary = 2;
+    repeated CounterfactualScenario counterfactuals = 3;
+    double explanation_fidelity = 4;
+}
+
+message CounterfactualScenario {
+    map<string, double> changed_features = 1;
+    double predicted_outcome = 2;
+    string description = 3;
+}
+
+// ============================================================================
+// Model Performance Messages
+// ============================================================================
+
+message ModelMetricsRequest {
+    string model_name = 1;
+    int32 window_days = 2;  // Optional: 7, 30, 90
+}
+
+message ModelMetrics {
+    string model_name = 1;
+    string model_version = 2;
+    map<string, double> metrics = 3;  // accuracy, precision, recall, f1, auc_roc, r_squared, rmse, mae
+    int32 window_days = 4;
+    int64 measured_at = 5;
+    PerformanceDetails details = 6;
+}
+
+message PerformanceDetails {
+    double latency_ms = 1;
+    double throughput_per_sec = 2;
+    ConfusionMatrix confusion_matrix = 3;
+    FeatureDrift feature_drift = 4;
+    FairnessMetrics fairness_metrics = 5;
+}
+
+message ConfusionMatrix {
+    repeated int32 matrix = 1;  // Flattened matrix
+    repeated string class_labels = 2;
+}
+
+message FeatureDrift {
+    map<string, double> kl_divergence = 1;
+    bool drift_detected = 2;
+}
+
+message FairnessMetrics {
+    double demographic_parity = 1;
+    double equal_opportunity = 2;
+}
+
+// ============================================================================
+// Model Training Messages
+// ============================================================================
+
+message TrainingRequest {
+    string model_type = 1;  // 'roi', 'anomaly', 'cluster', 'mla', 'forecast', 'risk'
+    string training_data_query = 2;  // SQL query to fetch training data
+    map<string, string> hyperparameters = 3;
+}
+
+message TrainingResponse {
+    bool success = 1;
+    string model_version = 2;
+    map<string, double> validation_metrics = 3;
+    string message = 4;
+}

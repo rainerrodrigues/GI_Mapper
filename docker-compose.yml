@@ -16,6 +16,7 @@ services:
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./database/migrations:/docker-entrypoint-initdb.d/migrations
       - ./database/verify_schema.sql:/docker-entrypoint-initdb.d/verify_schema.sql
+      - ./scripts:/scripts
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U gis_user -d gis_platform"]
       interval: 10s

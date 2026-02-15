@@ -30,18 +30,30 @@ export start_service
 # include("models/risk_assessor.jl")
 # include("explainability/shap_engine.jl")
 # include("monitoring/performance_tracker.jl")
-# include("utils/data_loader.jl")
-# include("utils/feature_engineering.jl")
-# include("grpc/service.jl")
+
+# Data loading and feature engineering utilities (Task 8.3)
+include("utils/data_loader.jl")
+include("utils/feature_engineering.jl")
+
+# Re-export utilities for convenience
+using .DataLoader
+using .FeatureEngineering
+export DataLoader, FeatureEngineering
+
+# gRPC service (Task 8.2)
+include("grpc/service.jl")
 
 """
-    start_service()
+    start_service(port::Int=50051)
 
 Start the Analytics Engine gRPC service.
 Initializes the Julia analytics engine with all required dependencies
 for machine learning, spatial analytics, database connectivity, and gRPC communication.
+
+# Arguments
+- `port::Int`: Port to listen on for gRPC connections (default: 50051)
 """
-function start_service()
+function start_service(port::Int=50051)
     @info "AI-Powered Blockchain GIS Platform - Analytics Engine"
     @info "Starting Julia analytics service..."
     @info "Loaded core dependencies:"
@@ -52,6 +64,9 @@ function start_service()
     @info "  - LibPQ (PostGIS Connection)"
     @info "  - DataFrames (Data Processing)"
     @info "Analytics Engine ready for spatial ML computations"
+    
+    # Start gRPC server
+    start_grpc_server(port)
 end
 
 end # module
