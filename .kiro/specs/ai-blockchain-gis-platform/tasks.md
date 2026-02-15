@@ -144,7 +144,7 @@ The implementation follows an incremental approach where each task builds on pre
     - _Requirements: 12.2, 12.4, 12.6_
 
 - [ ] 8. Implement Julia analytics engine core
-  - [-] 8.1 Set up Julia project with dependencies
+  - [x] 8.1 Set up Julia project with dependencies
     - Add MLJ, XGBoost, Flux, Clustering, OutlierDetection, ShapML
     - Add LibPQ for PostGIS connection
     - Add gRPC for communication with Rust backend
