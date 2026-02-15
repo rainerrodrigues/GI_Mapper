@@ -1,0 +1,35 @@
+name = "AnalyticsEngine"
+uuid = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+authors = ["AI-Powered Blockchain GIS Platform Team"]
+version = "0.1.0"
+
+[deps]
+# Machine Learning
+MLJ = "0.19"
+XGBoost = "2.4"
+Flux = "0.14"
+Clustering = "0.15"
+OutlierDetection = "0.3"
+ShapML = "0.2"
+
+# Data Processing
+DataFrames = "1.6"
+CSV = "0.10"
+Statistics = "1.10"
+StatsBase = "0.34"
+Distances = "0.10"
+
+# Database
+LibPQ = "1.16"
+
+# gRPC
+gRPC = "0.8"
+ProtoBuf = "1.0"
+
+# Time Series
+TimeSeries = "0.24"
+StateSpaceModels = "0.6"
+
+# Utilities
+Dates = "1.10"
+JSON3 = "1.14"
