@@ -65,7 +65,6 @@ The implementation follows an incremental approach where each task builds on pre
     - Implement database health check
     - _Requirements: 11.1_
 
-
 - [ ] 4. Implement GI Product management
   - [x] 4.1 Create GI Product data models and database operations
     - Define Rust structs for GIProduct
@@ -201,7 +200,7 @@ The implementation follows an incremental approach where each task builds on pre
   - [~] 9.8 Implement hierarchical clustering
     - Create hierarchical clustering function
     - Identify sub-clusters within major clusters
-    - _Requirements: 2.11**
+    - _Requirements: 2.11_
   
   - [ ]* 9.9 Write property test for hierarchical cluster relationships
     - **Property 11: Hierarchical Cluster Relationships**
@@ -255,7 +254,6 @@ The implementation follows an incremental approach where each task builds on pre
 
 - [~] 11. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
-
 
 - [ ] 12. Implement ROI prediction ensemble model
   - [~] 12.1 Implement Random Forest regressor
@@ -525,7 +523,6 @@ The implementation follows an incremental approach where each task builds on pre
     - Submit forecast hashes to blockchain
     - _Requirements: 9.2_
 
-
 - [ ] 17. Implement risk assessment
   - [~] 17.1 Implement risk classification models
     - Train Gradient Boosting classifier for risk levels
@@ -769,7 +766,7 @@ The implementation follows an incremental approach where each task builds on pre
   
   - [~] 22.4 Implement map data layers
     - Create GIProductLayer component
-    - Create ClusterLayer component
+    - Create ClusterLayer component (with boundaries)
     - Create MLAScoreLayer component (choropleth)
     - Create AnomalyLayer component
     - Implement layer toggle controls
@@ -880,28 +877,81 @@ The implementation follows an incremental approach where each task builds on pre
     - Test XSS prevention
     - Test authentication bypass attempts
 
-- [ ] 25. Final checkpoint and integration testing
-  - [~] 25.1 Run all unit tests
+- [ ] 25. Implement API documentation
+  - [~] 25.1 Generate OpenAPI specification
+    - Create OpenAPI/Swagger spec for all Backend_API endpoints
+    - Document request/response schemas
+    - Document authentication requirements
+    - Document error codes
+    - _Requirements: 23.1, 23.2, 23.3, 23.4_
+  
+  - [~] 25.2 Set up interactive API documentation
+    - Host Swagger UI for interactive API exploration
+    - Provide example requests and responses
+    - _Requirements: 23.2, 23.3_
+  
+  - [~] 25.3 Create SDK or client library
+    - Develop Python or JavaScript client library
+    - Include authentication helpers
+    - Include common integration patterns
+    - _Requirements: 23.5, 23.6_
+  
+  - [~] 25.4 Implement API versioning
+    - Set up versioned API routes (/api/v1/, /api/v2/)
+    - Maintain backward compatibility
+    - _Requirements: 23.7_
+  
+  - [ ]* 25.5 Write API documentation examples
+    - Create code examples for common use cases
+    - Document integration patterns
+    - _Requirements: 23.6_
+
+- [ ] 26. Implement model training and updates
+  - [~] 26.1 Implement scheduled model retraining
+    - Create scheduler for periodic retraining (daily, weekly, monthly)
+    - Fetch latest training data from PostGIS
+    - _Requirements: 19.1, 19.2_
+  
+  - [~] 26.2 Implement model evaluation and deployment
+    - Evaluate new model performance against previous model
+    - Deploy new model if performance improves
+    - Maintain model version history
+    - _Requirements: 19.3, 19.4, 19.5_
+  
+  - [~] 26.3 Implement model versioning
+    - Store model hashes on blockchain
+    - Track model versions with performance metrics
+    - _Requirements: 19.5, 19.6_
+  
+  - [~] 26.4 Create model management API endpoints
+    - GET /api/v1/models/versions (list model versions)
+    - GET /api/v1/models/:model_id/performance (get model performance)
+    - POST /api/v1/models/:model_id/retrain (trigger retraining)
+    - _Requirements: 19.7, 9.2_
+
+- [ ] 27. Final checkpoint and integration testing
+  - [~] 27.1 Run all unit tests
     - Verify all unit tests pass
     - Fix any failing tests
   
-  - [~] 25.2 Run all property tests
+  - [~] 27.2 Run all property tests
     - Verify all property tests pass (100+ iterations each)
     - Fix any failing properties
   
-  - [~] 25.3 Run integration tests
+  - [~] 27.3 Run integration tests
     - Test end-to-end workflows
     - Test authentication → prediction → blockchain verification
     - Test data import → clustering → visualization
     - Test anomaly detection → alerting → feedback
   
-  - [~] 25.4 Run performance tests
+  - [~] 27.4 Run performance tests
     - Load test with 100 concurrent users
     - Verify query response time < 2 seconds (95th percentile)
     - Verify prediction latency < 5 seconds (95th percentile)
     - Verify clustering completion < 30 seconds for 50K points
+    - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5_
   
-  - [~] 25.5 Verify success metrics
+  - [~] 27.5 Verify success metrics
     - Verify ROI prediction R-squared ≥ 0.75
     - Verify anomaly detection precision ≥ 90%, recall ≥ 85%
     - Verify clustering silhouette score ≥ 0.60
@@ -909,15 +959,17 @@ The implementation follows an incremental approach where each task builds on pre
     - Verify risk classification AUC-ROC ≥ 0.90
     - Verify 100% SHAP explanation coverage
     - Verify 100% blockchain verification
+    - _Requirements: 3.7, 5.6, 2.4, 21.5, 22.5, 7.1, 8.4_
   
-  - [~] 25.6 Create deployment documentation
+  - [~] 27.6 Create deployment documentation
     - Document deployment steps
     - Document configuration requirements
     - Document API usage examples
     - Document troubleshooting guide
 
-- [~] 26. Final review and handoff
+- [~] 28. Final review and handoff
   - Ensure all tests pass, ask the user if questions arise.
+
 
 ## Notes
 
@@ -930,3 +982,5 @@ The implementation follows an incremental approach where each task builds on pre
 - All AI outputs include SHAP explanations for transparency
 - All critical data is verified on Substrate blockchain
 - The platform integrates data from IBEF GI of India and PRS India MLA Track
+- API documentation is provided via OpenAPI/Swagger specification
+- Model training and updates are automated with version control and blockchain verification
