@@ -24,11 +24,11 @@ export start_service
 # Module includes (to be implemented in subsequent tasks)
 # include("models/roi_predictor.jl")
 # include("models/anomaly_detector.jl")
-# include("models/spatial_clusterer.jl")
+include("models/spatial_clusterer.jl")
 # include("models/mla_scorer.jl")
 # include("models/forecaster.jl")
 # include("models/risk_assessor.jl")
-# include("explainability/shap_engine.jl")
+include("explainability/shap_engine.jl")
 # include("monitoring/performance_tracker.jl")
 
 # Data loading and feature engineering utilities (Task 8.3)
@@ -38,7 +38,9 @@ include("utils/feature_engineering.jl")
 # Re-export utilities for convenience
 using .DataLoader
 using .FeatureEngineering
-export DataLoader, FeatureEngineering
+using .SpatialClusterer
+using .SHAPEngine
+export DataLoader, FeatureEngineering, SpatialClusterer, SHAPEngine
 
 # gRPC service (Task 8.2)
 include("grpc/service.jl")
@@ -61,6 +63,7 @@ function start_service(port::Int=50051)
     @info "  - XGBoost (Gradient Boosting)"
     @info "  - Flux (Neural Networks)"
     @info "  - Clustering (Spatial Clustering)"
+    @info "  - ShapML (SHAP Explainability)"
     @info "  - LibPQ (PostGIS Connection)"
     @info "  - DataFrames (Data Processing)"
     @info "Analytics Engine ready for spatial ML computations"

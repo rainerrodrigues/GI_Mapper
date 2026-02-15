@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered GIS Platform - Demo</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin-top: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            height: calc(100vh - 100px);
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .results {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .results h3 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .cluster-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid #667eea;
+        }
+
+        .cluster-item h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: #667eea;
+        }
+
+        .cluster-item p {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0.25rem 0;
+        }
+
+        .map-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #667eea;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+
+        .metrics {
+            background: #f0f7ff;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+
+        .metrics h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .metrics p {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0.25rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌍 AI-Powered Blockchain GIS Platform</h1>
+        <p>Economic Cluster Detection for Rural India - Demo</p>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <h2>Cluster Detection</h2>
+            
+            <div class="form-group">
+                <label for="algorithm">Algorithm</label>
+                <select id="algorithm">
+                    <option value="auto">Auto (Best)</option>
+                    <option value="dbscan">DBSCAN</option>
+                    <option value="kmeans">K-Means</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="dataSource">Data Source</label>
+                <select id="dataSource">
+                    <option value="sample">Sample Data (Demo)</option>
+                    <option value="gi_products">GI Products</option>
+                </select>
+            </div>
+
+            <button class="btn" id="detectBtn" onclick="detectClusters()">
+                Detect Clusters
+            </button>
+
+            <div id="results" class="results" style="display: none;">
+                <h3>Results</h3>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([20.5937, 78.9629], 5); // Center on India
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 18
+        }).addTo(map);
+
+        let clusterLayers = [];
+        let markerLayers = [];
+
+        // Generate sample data points across India
+        function generateSampleData() {
+            const regions = [
+                { name: 'Delhi NCR', lat: 28.6139, lon: 77.2090, count: 15 },
+                { name: 'Mumbai', lat: 19.0760, lon: 72.8777, count: 12 },
+                { name: 'Bangalore', lat: 12.9716, lon: 77.5946, count: 10 },
+                { name: 'Chennai', lat: 13.0827, lon: 80.2707, count: 8 },
+                { name: 'Kolkata', lat: 22.5726, lon: 88.3639, count: 9 }
+            ];
+
+            const dataPoints = [];
+            let id = 1;
+
+            regions.forEach(region => {
+                for (let i = 0; i < region.count; i++) {
+                    const lat = region.lat + (Math.random() - 0.5) * 0.5;
+                    const lon = region.lon + (Math.random() - 0.5) * 0.5;
+                    const value = Math.random() * 1000 + 100;
+
+                    dataPoints.push({
+                        id: `point_${id++}`,
+                        latitude: lat,
+                        longitude: lon,
+                        value: value
+                    });
+                }
+            });
+
+            return dataPoints;
+        }
+
+        // Detect clusters
+        async function detectClusters() {
+            const btn = document.getElementById('detectBtn');
+            const resultsDiv = document.getElementById('results');
+            const resultsContent = document.getElementById('resultsContent');
+
+            btn.disabled = true;
+            btn.textContent = 'Detecting...';
+            resultsContent.innerHTML = '<div class="loading">Analyzing data...</div>';
+            resultsDiv.style.display = 'block';
+
+            // Clear existing layers
+            clusterLayers.forEach(layer => map.removeLayer(layer));
+            markerLayers.forEach(layer => map.removeLayer(layer));
+            clusterLayers = [];
+            markerLayers = [];
+
+            try {
+                const algorithm = document.getElementById('algorithm').value;
+                const dataSource = document.getElementById('dataSource').value;
+
+                let dataPoints;
+                if (dataSource === 'sample') {
+                    dataPoints = generateSampleData();
+                } else {
+                    // In production, fetch from API
+                    dataPoints = generateSampleData();
+                }
+
+                // Add markers for data points
+                dataPoints.forEach(point => {
+                    const marker = L.circleMarker([point.latitude, point.longitude], {
+                        radius: 4,
+                        fillColor: '#3388ff',
+                        color: '#fff',
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.6
+                    }).addTo(map);
+                    markerLayers.push(marker);
+                });
+
+                // Call backend API
+                const response = await fetch('http://localhost:3000/api/v1/clusters/detect', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data_points: dataPoints,
+                        algorithm: algorithm
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+
+                // Display results
+                displayResults(result);
+
+                // Draw clusters on map
+                drawClusters(result.clusters);
+
+                btn.textContent = 'Detect Clusters';
+                btn.disabled = false;
+
+            } catch (error) {
+                console.error('Error:', error);
+                resultsContent.innerHTML = `<div class="error">Error: ${error.message}<br><br>Make sure the backend server is running on http://localhost:3000</div>`;
+                btn.textContent = 'Detect Clusters';
+                btn.disabled = false;
+            }
+        }
+
+        // Display results
+        function displayResults(result) {
+            const resultsContent = document.getElementById('resultsContent');
+            
+            let html = `
+                <div class="metrics">
+                    <h4>Quality Metrics</h4>
+                    <p><strong>Algorithm:</strong> ${result.algorithm_used}</p>
+                    <p><strong>Silhouette Score:</strong> ${result.quality_metrics.silhouette_score.toFixed(3)}</p>
+                    <p><strong>Davies-Bouldin Index:</strong> ${result.quality_metrics.davies_bouldin_index.toFixed(3)}</p>
+                    <p><strong>Clusters Found:</strong> ${result.clusters.length}</p>
+                </div>
+            `;
+
+            result.clusters.forEach((cluster, idx) => {
+                html += `
+                    <div class="cluster-item">
+                        <h4>Cluster ${cluster.cluster_id}</h4>
+                        <p><strong>Members:</strong> ${cluster.member_count}</p>
+                        <p><strong>Density:</strong> ${cluster.density.toFixed(4)}</p>
+                        <p><strong>Economic Value:</strong> ₹${cluster.economic_value.toFixed(2)}</p>
+                        <p><strong>Center:</strong> ${cluster.centroid[1].toFixed(4)}, ${cluster.centroid[0].toFixed(4)}</p>
+                    </div>
+                `;
+            });
+
+            resultsContent.innerHTML = html;
+        }
+
+        // Draw clusters on map
+        function drawClusters(clusters) {
+            const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c'];
+
+            clusters.forEach((cluster, idx) => {
+                const color = colors[idx % colors.length];
+
+                // Draw boundary polygon
+                if (cluster.boundary && cluster.boundary.length > 0) {
+                    const latLngs = cluster.boundary.map(coord => [coord[1], coord[0]]);
+                    const polygon = L.polygon(latLngs, {
+                        color: color,
+                        fillColor: color,
+                        fillOpacity: 0.2,
+                        weight: 2
+                    }).addTo(map);
+
+                    polygon.bindPopup(`
+                        <strong>Cluster ${cluster.cluster_id}</strong><br>
+                        Members: ${cluster.member_count}<br>
+                        Density: ${cluster.density.toFixed(4)}<br>
+                        Value: ₹${cluster.economic_value.toFixed(2)}
+                    `);
+
+                    clusterLayers.push(polygon);
+                }
+
+                // Draw centroid
+                const centroid = L.circleMarker([cluster.centroid[1], cluster.centroid[0]], {
+                    radius: 8,
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map);
+
+                centroid.bindPopup(`<strong>Cluster ${cluster.cluster_id} Center</strong>`);
+                clusterLayers.push(centroid);
+            });
+
+            // Fit map to show all clusters
+            if (clusterLayers.length > 0) {
+                const group = L.featureGroup(clusterLayers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+
+        // Initialize with sample visualization
+        window.addEventListener('load', () => {
+            console.log('GIS Platform Demo loaded');
+            console.log('Click "Detect Clusters" to analyze sample data');
+        });
+    </script>
+</body>
+</html>

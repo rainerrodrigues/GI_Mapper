@@ -6,6 +6,7 @@ use tracing::{info, warn};
 pub mod audit;
 pub mod gi_product;
 pub mod user;
+pub mod cluster;
 
 /// Database connection pool manager
 #[derive(Clone)]

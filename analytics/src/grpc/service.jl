@@ -11,6 +11,9 @@ It provides the interface between the Rust backend and the Julia ML/AI models.
 # using ProtoBuf
 using Logging
 
+# Modules are loaded at the AnalyticsEngine level
+# Access them via parent module: AnalyticsEngine.SpatialClusterer, etc.
+
 # Service handler implementations
 # These will be implemented in subsequent tasks as the models are built
 
@@ -95,22 +98,19 @@ Handle spatial clustering requests from the Rust backend.
 - Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 10.3, 10.6
 """
 function handle_detect_clusters(request)
-    @info "Received cluster detection request" algorithm=request.algorithm num_points=length(request.data_points)
+    @info "Received cluster detection request" algorithm=get(request, :algorithm, "auto") num_points=length(request[:data_points])
     
     try
-        # Import spatial clusterer module
-        include("../models/spatial_clusterer.jl")
-        using .SpatialClusterer
-        
         # Extract spatial coordinates from request
         # Assuming request.data_points is array of {longitude, latitude, value}
-        n_points = length(request.data_points)
+        data_points = request[:data_points]
+        n_points = length(data_points)
         data = zeros(Float64, n_points, 2)
         attributes = zeros(Float64, n_points)
         
-        for (i, point) in enumerate(request.data_points)
-            data[i, 1] = point.longitude
-            data[i, 2] = point.latitude
+        for (i, point) in enumerate(data_points)
+            data[i, 1] = point[:longitude]
+            data[i, 2] = point[:latitude]
             attributes[i] = get(point, :value, 0.0)
         end
         
@@ -124,32 +124,32 @@ function handle_detect_clusters(request)
             epsilon = get(request, :epsilon, nothing)
             min_points = get(request, :min_points, nothing)
             
-            result = detect_clusters_dbscan(data, epsilon=epsilon, min_points=min_points)
+            result = SpatialClusterer.detect_clusters_dbscan(data, epsilon=epsilon, min_points=min_points)
             
         elseif algorithm == "K-Means" || algorithm == "kmeans"
             # Run K-Means
             k = get(request, :k, nothing)
             max_k = get(request, :max_k, 10)
             
-            result = detect_clusters_kmeans(data, k=k, max_k=max_k)
+            result = SpatialClusterer.detect_clusters_kmeans(data, k=k, max_k=max_k)
             
         else
             # Auto mode: run both and select best
             @info "Running both algorithms for comparison"
             
-            dbscan_result = detect_clusters_dbscan(data)
-            kmeans_result = detect_clusters_kmeans(data)
+            dbscan_result = SpatialClusterer.detect_clusters_dbscan(data)
+            kmeans_result = SpatialClusterer.detect_clusters_kmeans(data)
             
-            result = select_best_algorithm(dbscan_result, kmeans_result)
+            result = SpatialClusterer.select_best_algorithm(dbscan_result, kmeans_result)
         end
         
         @info "Clustering complete" algorithm=result.algorithm n_clusters=result.n_clusters
         
         # Compute cluster boundaries
-        boundaries = compute_cluster_boundaries(data, result.labels)
+        boundaries = SpatialClusterer.compute_cluster_boundaries(data, result.labels)
         
         # Compute cluster statistics
-        statistics = compute_cluster_statistics(data, result.labels, attributes)
+        statistics = SpatialClusterer.compute_cluster_statistics(data, result.labels, attributes)
         
         # Format clusters for response
         clusters = []
