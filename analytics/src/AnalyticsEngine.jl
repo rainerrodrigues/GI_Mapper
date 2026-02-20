@@ -22,7 +22,7 @@ using Dates
 export start_service
 
 # Module includes (to be implemented in subsequent tasks)
-# include("models/roi_predictor.jl")
+include("models/roi_predictor.jl")
 # include("models/anomaly_detector.jl")
 include("models/spatial_clusterer.jl")
 # include("models/mla_scorer.jl")
@@ -40,7 +40,8 @@ using .DataLoader
 using .FeatureEngineering
 using .SpatialClusterer
 using .SHAPEngine
-export DataLoader, FeatureEngineering, SpatialClusterer, SHAPEngine
+using .ROIPredictor
+export DataLoader, FeatureEngineering, SpatialClusterer, SHAPEngine, ROIPredictor
 
 # gRPC service (Task 8.2)
 include("grpc/service.jl")

@@ -7,6 +7,7 @@ pub mod audit;
 pub mod gi_product;
 pub mod user;
 pub mod cluster;
+pub mod prediction;
 
 /// Database connection pool manager
 #[derive(Clone)]

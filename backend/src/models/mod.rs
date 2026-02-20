@@ -1,6 +1,7 @@
 pub mod gi_product;
 pub mod user;
 pub mod cluster;
+pub mod prediction;
 
 pub use gi_product::{
     CreateGIProductRequest, GIProduct, GeographicBounds, UpdateGIProductRequest,
@@ -12,4 +13,9 @@ pub use user::{
 pub use cluster::{
     Cluster, ClusterInfo, ClusterListResponse, ClusterSummary, DataPoint,
     DetectClustersRequest, DetectClustersResponse, QualityMetrics,
+};
+pub use prediction::{
+    PredictROIRequest, ROIPrediction, ROIPredictionResponse, ROIPredictionSummary,
+    PredictionExplanationResponse, ListPredictionsQuery, ListPredictionsResponse,
+    FeatureImportance, IndividualPredictions, SHAPExplanation, ComprehensiveSHAPExplanation,
 };
