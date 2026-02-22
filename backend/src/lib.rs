@@ -2,6 +2,7 @@
 
 pub mod auth;
 pub mod auth_middleware;
+pub mod blockchain;
 pub mod config;
 pub mod db;
 pub mod error;
