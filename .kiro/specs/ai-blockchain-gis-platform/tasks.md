@@ -23,7 +23,7 @@ The implementation follows an incremental approach where each task builds on pre
     - Set up foreign key constraints
     - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
   
-  - [ ]* 2.2 Write unit tests for database schema
+  - [ ] 2.2 Write unit tests for database schema
     - Test table creation
     - Test spatial index creation
     - Test constraint enforcement
@@ -43,11 +43,11 @@ The implementation follows an incremental approach where each task builds on pre
     - Create password hashing with bcrypt
     - _Requirements: 14.1, 14.2, 14.3, 14.4_
   
-  - [ ]* 3.3 Write property test for authentication
+  - [ ] 3.3 Write property test for authentication
     - **Property 58: Authentication Token Issuance**
     - **Validates: Requirements 14.2**
   
-  - [ ]* 3.4 Write property test for role-based access control
+  - [ ] 3.4 Write property test for role-based access control
     - **Property 59: Role-Based Access Control**
     - **Validates: Requirements 14.3, 14.4**
   
@@ -673,7 +673,7 @@ The implementation follows an incremental approach where each task builds on pre
     - Verify demographic parity ratio in [0.8, 1.2]
     - _Requirements: 20.13_
   
-  - [ ]* 18.18 Write property test for fairness metrics computation
+  - [ ] 18.18 Write property test for fairness metrics computation
     - **Property 43: Fairness Metrics Computation**
     - **Validates: Requirements 20.13**
   
